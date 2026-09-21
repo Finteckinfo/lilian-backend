@@ -108,6 +108,16 @@ supabase/           SQL migrations + seed
 6. Rotate secrets if they ever appeared in logs or tickets
 7. Do not deploy `data/users.json` from a developer machine to production without intent
 
+### Railway / Railpack
+
+Root directory must be this package (`lilian-backend`). Start command is defined in `railpack.json`:
+
+```bash
+uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-8000}
+```
+
+Set at least: `ENVIRONMENT`, `AUTH_JWT_SECRET`, `FRONTEND_ORIGIN`.
+
 ## Security
 
 See [SECURITY.md](./SECURITY.md) and [docs/PRACTICES.md](./docs/PRACTICES.md).
