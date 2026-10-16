@@ -97,6 +97,8 @@ def create_user(email: str, password: str, full_name: str) -> dict[str, Any]:
         "password_hash": hash_password(password),
         "role": "admin",
         "created_at": datetime.now(timezone.utc).isoformat(),
+        "last_login_at": datetime.now(timezone.utc).isoformat(),
+        "login_count": 1,
     }
     users.append(row)
     _save(users)
@@ -110,4 +112,48 @@ def public_user(user: dict[str, Any]) -> dict[str, Any]:
         "full_name": user.get("full_name") or "",
         "role": user.get("role") or "admin",
         "created_at": user.get("created_at"),
+        "last_login_at": user.get("last_login_at"),
+        "login_count": int(user.get("login_count") or 0),
     }
+
+
+def touch_login(user_id: str) -> dict[str, Any] | None:
+    users = _load()
+    found = None
+    now = datetime.now(timezone.utc).isoformat()
+    for user in users:
+        if str(user.get("id")) == user_id:
+            user["last_login_at"] = now
+            user["login_count"] = int(user.get("login_count") or 0) + 1
+            found = user
+            break
+    if found:
+        _save(users)
+    return found
+
+
+def change_password(user_id: str, current_password: str, new_password: str) -> None:
+    if len(new_password) < 8:
+        raise ValueError("Password must be at least 8 characters")
+    users = _load()
+    found = None
+    for user in users:
+        if str(user.get("id")) == user_id:
+            found = user
+            break
+    if not found:
+        raise ValueError("Account not found")
+    if not verify_password(current_password, str(found.get("password_hash") or "")):
+        raise ValueError("Current password is incorrect")
+    found["password_hash"] = hash_password(new_password)
+    _save(users)
+
+
+def delete_user(user_id: str) -> None:
+    users = _load()
+    if len(users) <= 1:
+        raise ValueError("The only studio account cannot be removed")
+    remaining = [u for u in users if str(u.get("id")) != user_id]
+    if len(remaining) == len(users):
+        raise ValueError("Account not found")
+    _save(remaining)

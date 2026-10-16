@@ -6,6 +6,7 @@ from app.auth import require_admin
 from app.db import has_supabase
 from app.schemas.models import SiteSettings, SiteSettingsPatch
 from app import store
+from app import users as user_store
 from app.seed import LOCAL_LEADS
 
 router = APIRouter(tags=["admin"])
@@ -34,16 +35,25 @@ def admin_stats(_admin=Depends(require_admin)):
     by_service = Counter(str(l.get("service_type") or "General") for l in leads)
     posts = store.get_posts()
     portfolio = store.get_portfolio()
+    requests = store.get_requests()
+    accounts = [user_store.public_user(u) for u in user_store.list_users()]
+    signins = sorted(accounts, key=lambda u: u.get("last_login_at") or "", reverse=True)
     return {
         "mode": "supabase" if has_supabase() else "local",
         "leads_total": len(leads),
+        "booking_inquiries": len(leads),
+        "product_requests": len(requests),
+        "accounts_total": len(accounts),
         "leads_by_status": dict(by_status),
         "leads_by_service": dict(by_service),
         "posts_total": len(posts),
         "posts_featured": sum(1 for p in posts if p.get("is_featured")),
         "portfolio_total": len(portfolio),
         "portfolio_videos": sum(1 for i in portfolio if i.get("media_type") == "Video"),
+        "catalog_total": len(store.get_products()),
         "recent_leads": sorted(leads, key=lambda x: x.get("created_at", ""), reverse=True)[:8],
+        "recent_requests": requests[:8],
+        "recent_signins": signins[:8],
         "activity": store.activity_feed(30),
         "settings": store.get_settings(),
     }

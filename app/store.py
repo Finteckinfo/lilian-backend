@@ -18,7 +18,7 @@ DEFAULT_SETTINGS: dict[str, Any] = {
     "accent_color": "#C9A88A",
     "paper_color": "#F7F4EF",
     "ink_color": "#2A2420",
-    "whatsapp_number": "0000000000",
+    "whatsapp_number": "254794230220",
     "instagram_url": "https://www.instagram.com/lilianbeauty_studio",
     "show_whatsapp_fab": True,
     "show_journal": True,
@@ -46,10 +46,81 @@ def _store_path() -> Path:
     return _data_dir() / "content.json"
 
 
+SEED_PRODUCTS: list[dict] = [
+    {
+        "id": "kit-foundation",
+        "name": "Soft Matte Foundation",
+        "brand": "Studio kit",
+        "category": "Face",
+        "shade": "Neutral medium",
+        "barcode": "",
+        "quantity": 4,
+        "notes": "The base Lillian uses when the day is long and the light is honest.",
+        "image_url": "/media/catalog/foundation.jpg",
+    },
+    {
+        "id": "kit-concealer",
+        "name": "Cream Concealer",
+        "brand": "Studio kit",
+        "category": "Face",
+        "shade": "Warm light",
+        "barcode": "",
+        "quantity": 3,
+        "notes": "Spot coverage under the eyes and around the nose.",
+        "image_url": "/media/catalog/concealer.jpg",
+    },
+    {
+        "id": "kit-powder",
+        "name": "Translucent Setting Powder",
+        "brand": "Studio kit",
+        "category": "Setting",
+        "shade": "Clear",
+        "barcode": "",
+        "quantity": 2,
+        "notes": "Set only where shine shows — T-zone, not the whole face.",
+        "image_url": "/media/catalog/setting-powder.jpg",
+    },
+    {
+        "id": "kit-blush",
+        "name": "Cream Blush",
+        "brand": "Studio kit",
+        "category": "Cheeks",
+        "shade": "Soft rose",
+        "barcode": "",
+        "quantity": 3,
+        "notes": "A skin-like flush she places high on the cheek.",
+        "image_url": "/media/catalog/blush.jpg",
+    },
+    {
+        "id": "kit-brow",
+        "name": "Brow Pencil",
+        "brand": "Studio kit",
+        "category": "Eyes",
+        "shade": "Soft brown",
+        "barcode": "",
+        "quantity": 5,
+        "notes": "Hair-like strokes, then brushed through.",
+        "image_url": "/media/catalog/brow-pencil.jpg",
+    },
+    {
+        "id": "kit-lip",
+        "name": "Satin Lip Colour",
+        "brand": "Studio kit",
+        "category": "Lips",
+        "shade": "Nude rose",
+        "barcode": "",
+        "quantity": 4,
+        "notes": "The lip she finishes bridal and editorial looks with.",
+        "image_url": "/media/catalog/lip-colour.jpg",
+    },
+]
+
 LOCAL_POSTS: list[dict] = [_serialize(p) for p in SEED_POSTS]
 LOCAL_PORTFOLIO: list[dict] = [_serialize(i) for i in SEED_PORTFOLIO]
 LOCAL_SETTINGS: dict[str, Any] = copy.deepcopy(DEFAULT_SETTINGS)
 LOCAL_ACTIVITY: list[dict] = []
+LOCAL_PRODUCTS: list[dict] = copy.deepcopy(SEED_PRODUCTS)
+LOCAL_REQUESTS: list[dict] = []
 
 
 def persist() -> None:
@@ -60,6 +131,8 @@ def persist() -> None:
         "leads": LOCAL_LEADS,
         "lead_events": LOCAL_LEAD_EVENTS,
         "activity": LOCAL_ACTIVITY,
+        "products": LOCAL_PRODUCTS,
+        "requests": LOCAL_REQUESTS,
     }
     _store_path().write_text(json.dumps(payload, indent=2, default=str), encoding="utf-8")
 
@@ -85,6 +158,10 @@ def load_persisted() -> None:
         LOCAL_LEAD_EVENTS[:] = data["lead_events"]
     if isinstance(data.get("activity"), list):
         LOCAL_ACTIVITY[:] = data["activity"]
+    if isinstance(data.get("products"), list):
+        LOCAL_PRODUCTS[:] = data["products"]
+    if isinstance(data.get("requests"), list):
+        LOCAL_REQUESTS[:] = data["requests"]
 
 
 def log_activity(kind: str, message: str, meta: dict | None = None) -> None:
@@ -108,6 +185,14 @@ def get_posts() -> list[dict]:
 
 def get_portfolio() -> list[dict]:
     return sorted(LOCAL_PORTFOLIO, key=lambda i: int(i.get("display_order") or 0))
+
+
+def get_products() -> list[dict]:
+    return sorted(LOCAL_PRODUCTS, key=lambda p: (str(p.get("category") or ""), str(p.get("name") or "").lower()))
+
+
+def get_requests() -> list[dict]:
+    return sorted(LOCAL_REQUESTS, key=lambda r: r.get("created_at", ""), reverse=True)
 
 
 def get_settings() -> dict:

@@ -124,7 +124,7 @@ class SiteSettings(BaseModel):
     accent_color: str = "#C9A88A"
     paper_color: str = "#F7F4EF"
     ink_color: str = "#2A2420"
-    whatsapp_number: str = "0000000000"
+    whatsapp_number: str = "254794230220"
     instagram_url: str = "https://www.instagram.com/lilianbeauty_studio"
     show_whatsapp_fab: bool = True
     show_journal: bool = True
@@ -160,12 +160,48 @@ class AuthLogin(BaseModel):
     password: str = Field(min_length=1, max_length=128)
 
 
+class AuthPasswordChange(BaseModel):
+    current_password: str = Field(min_length=1, max_length=128)
+    new_password: str = Field(min_length=8, max_length=128)
+
+
 class AuthUserOut(BaseModel):
     id: str
     email: str
     full_name: str
     role: str
     created_at: Optional[str] = None
+    last_login_at: Optional[str] = None
+    login_count: int = 0
+
+
+class ProductWrite(BaseModel):
+    name: str = Field(min_length=1, max_length=200)
+    brand: str = ""
+    category: str = "Face"
+    shade: str = ""
+    barcode: str = ""
+    quantity: int = Field(default=0, ge=0, le=100000)
+    notes: str = ""
+    image_url: str = ""
+
+
+class ProductOut(ProductWrite):
+    id: str
+
+
+class CatalogRequestItem(BaseModel):
+    product_id: str = ""
+    name: str = Field(min_length=1, max_length=200)
+    quantity: int = Field(ge=1, le=99)
+    shade: str = ""
+
+
+class CatalogRequestCreate(BaseModel):
+    full_name: str = Field(min_length=1, max_length=200)
+    phone_number: str = Field(min_length=7, max_length=32)
+    items: list[CatalogRequestItem] = Field(min_length=1, max_length=40)
+    note: str = ""
 
 
 class AuthTokenOut(BaseModel):
