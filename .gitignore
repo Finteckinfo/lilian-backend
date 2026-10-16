@@ -1,0 +1,30 @@
+# Being Lillian Backend — ignore rules
+
+# env & secrets
+.env
+.env.*
+!.env.example
+
+# runtime data (users, leads, content — may contain PII / password hashes)
+data/
+!data/.gitkeep
+
+# python
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+.venv/
+venv/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# tooling / OS
+*.log
+.DS_Store
+.idea/
+.vscode/
+
+# accidental local tooling under supabase/
+supabase/.venv/
