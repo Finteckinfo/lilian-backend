@@ -33,9 +33,14 @@ default_origins = [
     "http://localhost:3000",
     "http://127.0.0.1:3000",
 ]
+production_origins = [
+    "https://beinglillian.com",
+    "https://www.beinglillian.com",
+]
+allow_origins = list(dict.fromkeys([*(origins or default_origins), *production_origins]))
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins or default_origins,
+    allow_origins=allow_origins,
     allow_credentials=True,
     allow_methods=["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
     allow_headers=["Authorization", "Content-Type", "Accept"],
